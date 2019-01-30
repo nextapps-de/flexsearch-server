@@ -1,5 +1,5 @@
-const cluster = require('cluster');
-const os = require('os');
+const cluster = require("cluster");
+const os = require("os");
 
 if(cluster.isMaster){
 
@@ -20,14 +20,14 @@ if(cluster.isMaster){
         }
     });
 
-    process.on('SIGUSR2', function(){
+    process.on("SIGUSR2", function(){
 
         restartWorker();
     });
 }
 else{
 
-    require('./server');
+    require("./server");
 }
 
 function restartWorker(workerIndex){
@@ -42,7 +42,7 @@ function restartWorker(workerIndex){
         return;
     }
 
-    worker.on('exit', function(){
+    worker.on("exit", function(){
 
         if(!worker.exitedAfterDisconnect) {
 
@@ -51,7 +51,7 @@ function restartWorker(workerIndex){
 
         console.log("Exited process: " + worker.process.pid);
 
-        cluster.fork().on('listening', function(){
+        cluster.fork().on("listening", function(){
 
             restartWorker(workerIndex + 1);
         });

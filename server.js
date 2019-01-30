@@ -2,9 +2,9 @@ const env = require("./env");
 const config = require("./config/" + env);
 const port = config.port;
 const app = require("express")();
-const controller = require('./controller');
+const controller = require("./controller");
 const compression = require("compression");
-const { json } = require('body-parser');
+const { json } = require("body-parser");
 
 /* Enforce SSL
 -----------------------------------------------*/
@@ -61,13 +61,15 @@ app.use(json());
 /* Routes
 -----------------------------------------------*/
 
-app.get('/', controller.index);
-app.post('/add', controller.add);
-app.post('/add/:id/:content', controller.add);
-app.get('/search', controller.search);
-app.get('/search/:query', controller.search);
-app.post('/remove', controller.remove);
-app.post('/remove/:id', controller.remove);
+app.get("/", controller.index);
+app.post("/add", controller.add);
+app.post("/add/:id/:content", controller.add);
+app.post("/update", controller.update);
+app.post("/update/:id/:content", controller.update);
+app.get("/search", controller.search);
+app.get("/search/:query", controller.search);
+app.post("/remove", controller.remove);
+app.post("/remove/:id", controller.remove);
 
 /* Start HTTPS Server
 -----------------------------------------------*/

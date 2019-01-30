@@ -1,12 +1,11 @@
 const env = require("./env");
-const cluster = require('cluster');
+const cluster = require("cluster");
 const { readFile, writeFile, exists } = require("fs");
 const filename = "store/" + env + (cluster.isMaster ? "" : "@" + cluster.worker.id) + ".json";
 let config = require("./config/" + env);
 
-const flexsearch = require("./node_modules/flexsearch/flexsearch.js").create(config = config.flexsearch ? {
+const flexsearch = require("../flexsearch.js").create(config = config.flexsearch ? config.preset || {
 
-    preset: config.async,
     async: config.async,
     cache: config.cache,
     threshold: config.threshold,
@@ -71,6 +70,64 @@ module.exports = {
                         const content = query.content;
 
                         flexsearch.add(id, content);
+                    }
+
+                    write_to_file();
+
+                    res.sendStatus(200);
+                }
+                catch(err){
+
+                    next(err);
+                }
+            }
+            else{
+
+                next();
+            }
+        }
+    },
+
+    update: function(req, res, next){
+
+        const id = req.params.id;
+        const content = req.params.content;
+
+        if(id && content){
+
+            try{
+
+                flexsearch.update(id, content);
+
+                write_to_file();
+
+                res.sendStatus(200);
+            }
+            catch(err){
+
+                next(err);
+            }
+        }
+        else{
+
+            let json = req.body;
+
+            if(json){
+
+                try{
+
+                    if(json.constructor !== Array){
+
+                        json = [json];
+                    }
+
+                    for(let i = 0, len = json.length; i < len; i++){
+
+                        const query = json[i];
+                        const id = query.id;
+                        const content = query.content;
+
+                        flexsearch.update(id, content);
                     }
 
                     write_to_file();
@@ -175,10 +232,7 @@ function read_from_file(){
 
                 try{
 
-                    data = JSON.parse(data);
-
-                    flexsearch._map = data.map;
-                    flexsearch._ctx = data.ctx;
+                    flexsearch.import(data);
                 }
                 catch(err){
 
@@ -191,12 +245,7 @@ function read_from_file(){
 
 function write_to_file(){
 
-    writeFile(filename, JSON.stringify({
-
-        "map": flexsearch._map,
-        "ctx": flexsearch._ctx
-
-    }), function(err){
+    writeFile(filename, flexsearch.export(), function(err){
 
         if(err){
 

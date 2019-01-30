@@ -1,9 +1,9 @@
-const {existsSync, mkdirSync} = require('fs');
+const {existsSync, mkdirSync} = require("fs");
 
 [
-    './store',
-    './log',
-    './cert'
+    "./store",
+    "./log",
+    "./cert"
 
 ].forEach(function(dir){
 
