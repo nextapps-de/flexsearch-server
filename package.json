@@ -1,0 +1,47 @@
+{
+  "name": "flexsearch-server",
+  "version": "0.1.0",
+  "description": "Next-Generation full text search library with zero dependencies.",
+  "homepage": "https://github.com/nextapps-de/flexsearch-server/",
+  "author": "Thomas Wilkerling",
+  "copyright": "Nextapps GmbH",
+  "license": "Apache-2.0",
+  "keywords": [
+    "fulltext search",
+    "elastic search",
+    "fastest search",
+    "contextual search",
+    "fuzzy search"
+  ],
+  "bugs": {
+    "url": "https://github.com/nextapps-de/flexsearch-server/issues",
+    "email": "info@nextapps.de"
+  },
+  "main": "server.js",
+  "preferGlobal": false,
+  "bin": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nextapps-de/flexsearch-server.git"
+  },
+  "files": [
+    "config/",
+    "cluster.js",
+    "controller.js",
+    "env.js",
+    "server.js",
+    "setup.js"
+  ],
+  "scripts": {
+    "postinstall": "node setup",
+    "start": "node server",
+    "cluster": "node cluster"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
+    "express": "^4.16.4",
+    "flexsearch": "^0.3.3"
+  },
+  "devDependencies": {}
+}

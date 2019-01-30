@@ -1,0 +1,6 @@
+.idea
+node_modules
+!*.keep
+cert
+store
+package-lock.json
