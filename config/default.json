@@ -1,0 +1,18 @@
+{
+  "port": 80,
+  "force_ssl": false,
+  "https": false,
+  "compress": true,
+  "autosave": false,
+  "worker": "auto",
+  "flexsearch": {
+    "async": true,
+    "cache": 1000
+  },
+  "redis": {
+    "host": "localhost",
+    "port": "6379",
+    "pass": null
+  },
+  "secret": null
+}

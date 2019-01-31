@@ -1,0 +1,18 @@
+{
+  "port": 6780,
+  "force_ssl": true,
+  "https": true,
+  "compress": true,
+  "autosave": 10000,
+  "worker": "auto",
+  "flexsearch": {
+    "async": true,
+    "cache": 1000
+  },
+  "redis": {
+    "host": "localhost",
+    "port": "6379",
+    "pass": null
+  },
+  "secret": "RNvwdEETVcgcyLFjFG69m73T6KQCrac7dThRRQfhMrLS4QYwLCkByUjMnFbxtqKEFV5DEwnACFzmarEwmCjfRu63er8VHcvngmneZC6ZdWFNe4sDnpjQex8HLm4YkXkbcfTev7FbHc4tAgBtdC8eGDZ7JxmpbcRSFGHVJPLdNETJBsgqNAXqAcZnk8CJUBGr9M3WyHX8SvXrhqTb4Aka4GFYueRHWRyHkjDVH2thMxxV7XATm9ULZyatbZPXuEMq"
+}

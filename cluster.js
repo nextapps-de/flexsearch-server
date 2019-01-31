@@ -1,9 +1,10 @@
 const cluster = require("cluster");
 const os = require("os");
+const { config } = require("./helper");
 
 if(cluster.isMaster){
 
-    const cpus = os.cpus().length;
+    const cpus = config.worker === "auto" ? os.cpus().length : config.worker;
 
     for(let i = 0; i < cpus; i++){
 

@@ -1,6 +1,6 @@
 {
   "name": "flexsearch-server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Next-Generation full text search library with zero dependencies.",
   "homepage": "https://github.com/nextapps-de/flexsearch-server/",
   "author": "Thomas Wilkerling",
@@ -28,6 +28,7 @@
     "config/",
     "cluster.js",
     "controller.js",
+    "helper.js",
     "env.js",
     "server.js",
     "setup.js"

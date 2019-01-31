@@ -1,6 +1,5 @@
 const env = require("./env");
-const config = require("./config/" + env);
-const port = config.port;
+const { config } = require("./helper");
 const app = require("express")();
 const controller = require("./controller");
 const compression = require("compression");
@@ -48,7 +47,7 @@ app.use(function(req, res, next){
 
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    req.env = env;
+    //req.env = env;
 
     next();
 });
@@ -97,10 +96,10 @@ if(config.https || config.force_ssl){
 
 if(!config.force_ssl){
 
-    app.listen(port, function(err){
+    app.listen(config.port, function(err){
 
         if(err) throw err;
 
-        console.info("Server@" + process.pid + " listening on http://localhost" + (("" + port) !== "80" ? ":" + port : ""));
+        console.info("Server@" + process.pid + " listening on http://localhost" + (("" + config.port) !== "80" ? ":" + config.port : ""));
     });
 }

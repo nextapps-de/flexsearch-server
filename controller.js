@@ -1,20 +1,24 @@
-const env = require("./env");
-const cluster = require("cluster");
-const { readFile, writeFile, exists } = require("fs");
-const filename = "store/" + env + (cluster.isMaster ? "" : "@" + cluster.worker.id) + ".json";
-let config = require("./config/" + env);
+const { config, read_from_file, write_schedule } = require("./helper");
+const flexserach_config = config.flexsearch;
 
-const flexsearch = require("../flexsearch.js").create(config = config.flexsearch ? config.preset || {
+const flexsearch = require("./node_modules/flexsearch/flexsearch.js").create(flexserach_config ? flexserach_config.preset || {
 
-    async: config.async,
-    cache: config.cache,
-    threshold: config.threshold,
-    depth: config.depth,
-    limit: config.limit
+    async: flexserach_config.async,
+    cache: flexserach_config.cache,
+    threshold: flexserach_config.threshold,
+    depth: flexserach_config.depth,
+    limit: flexserach_config.limit,
+    encode: flexserach_config.encode,
+    tokenize: flexserach_config.tokenize,
+    filter: flexserach_config.filter,
+    stemmer: flexserach_config.stemmer
 
 } : null);
 
-read_from_file();
+if(config.autosave || (config.autosave === 0)){
+
+    read_from_file(flexsearch);
+}
 
 module.exports = {
 
@@ -41,7 +45,7 @@ module.exports = {
 
                 flexsearch.add(id, content);
 
-                write_to_file();
+                write_schedule(flexsearch);
 
                 res.sendStatus(200);
             }
@@ -72,7 +76,7 @@ module.exports = {
                         flexsearch.add(id, content);
                     }
 
-                    write_to_file();
+                    write_schedule(flexsearch);
 
                     res.sendStatus(200);
                 }
@@ -99,7 +103,7 @@ module.exports = {
 
                 flexsearch.update(id, content);
 
-                write_to_file();
+                write_schedule(flexsearch);
 
                 res.sendStatus(200);
             }
@@ -130,7 +134,7 @@ module.exports = {
                         flexsearch.update(id, content);
                     }
 
-                    write_to_file();
+                    write_schedule(flexsearch);
 
                     res.sendStatus(200);
                 }
@@ -178,7 +182,7 @@ module.exports = {
 
                 flexsearch.remove(id);
 
-                write_to_file();
+                write_schedule(flexsearch);
 
                 res.sendStatus(200);
             }
@@ -200,7 +204,7 @@ module.exports = {
                         flexsearch.remove(json[i]);
                     }
 
-                    write_to_file();
+                    write_schedule(flexsearch);
 
                     res.sendStatus(200);
                 }
@@ -216,40 +220,3 @@ module.exports = {
         }
     }
 };
-
-function read_from_file(){
-
-    exists(filename, function(exists) {
-
-        if(exists) readFile(filename, function(err, data){
-
-            if(err){
-
-                throw err;
-            }
-
-            if(data && data.length){
-
-                try{
-
-                    flexsearch.import(data);
-                }
-                catch(err){
-
-                    throw err;
-                }
-            }
-        });
-    });
-}
-
-function write_to_file(){
-
-    writeFile(filename, flexsearch.export(), function(err){
-
-        if(err){
-
-            throw err;
-        }
-    });
-}
