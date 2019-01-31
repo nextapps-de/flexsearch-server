@@ -1,9 +1,9 @@
 {
   "port": 6780,
+  "port_ssl": 6781,
   "force_ssl": true,
-  "https": true,
   "compress": true,
-  "autosave": 10000,
+  "autosave": 2000,
   "worker": "auto",
   "flexsearch": {
     "async": true,

@@ -83,11 +83,11 @@ if(config.https || config.force_ssl){
         key: readFileSync("cert/" + env + ".pem", "utf8"),
         cert: readFileSync("cert/" + env + ".crt", "utf8")
 
-    }, app).listen(443, function(err){
+    }, app).listen(config.port_ssl, function(err){
 
         if(err) throw err;
 
-        console.info("Server@" + process.pid + " listening on https://localhost");
+        console.info("Server@" + process.pid + " listening on https://localhost" + (config.port_ssl !== 443 ? ":" + config.port_ssl : ""));
     });
 }
 
@@ -100,6 +100,6 @@ if(!config.force_ssl){
 
         if(err) throw err;
 
-        console.info("Server@" + process.pid + " listening on http://localhost" + (("" + config.port) !== "80" ? ":" + config.port : ""));
+        console.info("Server@" + process.pid + " listening on http://localhost" + (config.port !== 80 ? ":" + config.port : ""));
     });
 }

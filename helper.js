@@ -9,6 +9,7 @@ const config = (function(){
 
     [
         "port",
+        "port_ssl",
         "force_ssl",
         "https",
         "compress",
@@ -81,26 +82,20 @@ module.exports = {
         });
     },
 
-    write_schedule: function(flexsearch){
+    write_schedule: config.autosave || (config.autosave === 0) ? function(flexsearch){
 
-        if(config.autosave || (config.autosave === 0)){
+        if(timer){
 
-            if(timer){
-
-                clearTimeout(timer);
-            }
-
-            timer = setTimeout(function(){
-
-                write_to_file(flexsearch);
-
-            }, config.autosave);
+            clearTimeout(timer);
         }
-        else{
+
+        timer = setTimeout(function(){
 
             write_to_file(flexsearch);
-        }
-    }
+
+        }, config.autosave);
+
+    } : write_to_file
 };
 
 function write_to_file(flexsearch){

@@ -1,7 +1,7 @@
 const { config, read_from_file, write_schedule } = require("./helper");
 const flexserach_config = config.flexsearch;
 
-const flexsearch = require("./node_modules/flexsearch/flexsearch.js").create(flexserach_config ? flexserach_config.preset || {
+const flexsearch = require("flexsearch").create(flexserach_config ? flexserach_config.preset || {
 
     async: flexserach_config.async,
     cache: flexserach_config.cache,
@@ -43,9 +43,10 @@ module.exports = {
 
             try{
 
-                flexsearch.add(id, content);
+                flexsearch.add(id, content, function(){
 
-                write_schedule(flexsearch);
+                    write_schedule(flexsearch);
+                });
 
                 res.sendStatus(200);
             }
@@ -73,10 +74,11 @@ module.exports = {
                         const id = query.id;
                         const content = query.content;
 
-                        flexsearch.add(id, content);
-                    }
+                        flexsearch.add(id, content, i < len - 1 ? null : function(){
 
-                    write_schedule(flexsearch);
+                            write_schedule(flexsearch);
+                        });
+                    }
 
                     res.sendStatus(200);
                 }
@@ -101,9 +103,10 @@ module.exports = {
 
             try{
 
-                flexsearch.update(id, content);
+                flexsearch.update(id, content, function(){
 
-                write_schedule(flexsearch);
+                    write_schedule(flexsearch)
+                });
 
                 res.sendStatus(200);
             }
@@ -131,10 +134,11 @@ module.exports = {
                         const id = query.id;
                         const content = query.content;
 
-                        flexsearch.update(id, content);
-                    }
+                        flexsearch.update(id, content, i < len - 1 ? null : function(){
 
-                    write_schedule(flexsearch);
+                            write_schedule(flexsearch);
+                        });
+                    }
 
                     res.sendStatus(200);
                 }
@@ -180,9 +184,10 @@ module.exports = {
 
             try{
 
-                flexsearch.remove(id);
+                flexsearch.remove(id, function(){
 
-                write_schedule(flexsearch);
+                    write_schedule(flexsearch);
+                });
 
                 res.sendStatus(200);
             }
@@ -201,10 +206,11 @@ module.exports = {
 
                     for(let i = 0, len = json.length; i < len; i++){
 
-                        flexsearch.remove(json[i]);
-                    }
+                        flexsearch.remove(json[i], i < len - 1 ? null : function(){
 
-                    write_schedule(flexsearch);
+                            write_schedule(flexsearch);
+                        });
+                    }
 
                     res.sendStatus(200);
                 }

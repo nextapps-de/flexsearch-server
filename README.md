@@ -39,6 +39,16 @@ Run as a server cluster:
 npm run cluster
 ```
 
+Run with a specified environment:
+
+```node
+npm start production
+```
+
+```node
+npm run cluster test
+```
+
 The server is listening at:
 
 <table>
@@ -63,7 +73,9 @@ The server is listening at:
     </tr>
 </table>
 
-> The default port for production is __6780__, you can change the default port in the configs.
+> The default port for production is __6780__ (over HTTP) and __6781__ (over HTTPS), you can change the default ports in the configs.
+
+> When _NODE_ENV_ is set, all manual passed environments will be overridden.
 
 <a name="api"></a>
 ## API Overview
@@ -162,6 +174,13 @@ __JSON__
         <td>PORT</td>
         <td>integer</td>
         <td>80&nbsp;(development)<br>6780&nbsp;(production)</td>
+        <td>Server listening port</td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td>PORT_SSL</td>
+        <td>integer</td>
+        <td>443&nbsp;(development)<br>6781&nbsp;(production)</td>
         <td>Server listening port</td>
     </tr>
     <tr></tr>
