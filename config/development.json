@@ -1,19 +1,17 @@
 {
-  "port": 80,
-  "port_ssl": 443,
-  "force_ssl": false,
-  "https": true,
-  "compress": true,
-  "autosave": 2000,
-  "worker": "auto",
-  "flexsearch": {
-    "async": true,
-    "cache": 0
+  "server": {
+    "debug": true,
+    "port": 80,
+    "port_ssl": 443,
+    "force_ssl": false,
+    "https": true,
+    "compress": true,
+    "autosave": 2000,
+    "worker": "auto"
   },
-  "redis": {
-    "host": "localhost",
-    "port": "6379",
-    "pass": null
-  },
-  "secret": "fRu63er8VHcvngmneZC6ZdWFNe4sDnpjQex8HLm4YkXkbcfTev7FbHc4tAgBtLS4QYwLCkByUjMnFbxtqKEFV5DEwnACFzmarEwmCjHVJPLdNETJBsgqNAXqAcZnk8CJUBGr9M3WyHX8SvXrhqTb4Aka4GFYueRHWRyHkjDVH2thMxxV7XATm9ULZyatbZPXuEMqdC8eGDZ7JxmpbcRSFGRNvwdEETVcgcyLFjFG69m73T6KQCrac7dThRRQfhMr"
+  "client": {
+    "async": false,
+    "cache": 0,
+    "worker": 4
+  }
 }

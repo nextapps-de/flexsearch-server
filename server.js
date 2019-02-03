@@ -4,6 +4,9 @@ const app = require("express")();
 const controller = require("./controller");
 const compression = require("compression");
 const { json } = require("body-parser");
+const { isMaster } = require("cluster");
+
+app.disable("x-powered-by");
 
 /* Enforce SSL
 -----------------------------------------------*/
@@ -61,34 +64,55 @@ app.use(json());
 -----------------------------------------------*/
 
 app.get("/", controller.index);
-app.post("/add", controller.add);
+app.post("/add", controller.add_bulk);
 app.post("/add/:id/:content", controller.add);
-app.post("/update", controller.update);
+app.post("/update", controller.update_bulk);
 app.post("/update/:id/:content", controller.update);
 app.get("/search", controller.search);
 app.get("/search/:query", controller.search);
-app.post("/remove", controller.remove);
+app.post("/remove", controller.remove_bulk);
 app.post("/remove/:id", controller.remove);
+
+if(isMaster) console.info("\x1b[32m\x1b[1m",
+
+    "\n" +
+    " _____ _            ____                      _        _     \n" +
+    "|  ___| | _____  __/ ___|  ___  __ _ _ __ ___| |__    (_)___ \n" +
+    "| |_  | |/ _ \\ \\/ /\\___ \\ / _ \\/ _` | '__/ __| '_ \\   | / __|\n" +
+    "|  _| | |  __/>  <  ___) |  __/ (_| | | | (__| | | |_ | \\__ \\\n" +
+    "|_|   |_|\\___/_/\\_\\|____/ \\___|\\__,_|_|  \\___|_| |_(_)/ |___/\n" +
+    "                                                    |__/     \n" +
+    "Version: " + require("./package.json").version + "\n" +
+    "-------------------------------------------------------------", "\x1b[0m"
+);
 
 /* Start HTTPS Server
 -----------------------------------------------*/
 
 if(config.https || config.force_ssl){
 
-    const { readFileSync } = require("fs");
-    const { createServer } = require("https");
+    const { readFileSync, existsSync } = require("fs");
 
-    createServer({
+    if(existsSync("../../cert/" + env + ".pem") && existsSync("../../cert/" + env + ".crt")){
 
-        key: readFileSync("cert/" + env + ".pem", "utf8"),
-        cert: readFileSync("cert/" + env + ".crt", "utf8")
+        const {createServer} = require("https");
 
-    }, app).listen(config.port_ssl, function(err){
+        createServer({
 
-        if(err) throw err;
+            key: readFileSync("../../cert/" + env + ".pem", "utf8"),
+            cert: readFileSync("../../cert/" + env + ".crt", "utf8")
 
-        console.info("Server@" + process.pid + " listening on https://localhost" + (config.port_ssl !== 443 ? ":" + config.port_ssl : ""));
-    });
+        }, app).listen(config.port_ssl, function(err){
+
+            if(err) throw err;
+
+            console.info("Server@" + process.pid + " listening on https://localhost" + (config.port_ssl !== 443 ? ":" + config.port_ssl : ""));
+        });
+    }
+    else{
+
+       console.info("Could not find certificates located at: /certs. Therefore HTTPS server can't initialize.");
+    }
 }
 
 /* Start HTTP Server

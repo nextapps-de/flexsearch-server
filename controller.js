@@ -1,24 +1,7 @@
-const { config, read_from_file, write_schedule } = require("./helper");
-const flexserach_config = config.flexsearch;
-
-const flexsearch = require("flexsearch").create(flexserach_config ? flexserach_config.preset || {
-
-    async: flexserach_config.async,
-    cache: flexserach_config.cache,
-    threshold: flexserach_config.threshold,
-    depth: flexserach_config.depth,
-    limit: flexserach_config.limit,
-    encode: flexserach_config.encode,
-    tokenize: flexserach_config.tokenize,
-    filter: flexserach_config.filter,
-    stemmer: flexserach_config.stemmer
-
-} : null);
-
-if(config.autosave || (config.autosave === 0)){
-
-    read_from_file(flexsearch);
-}
+const { write_schedule } = require("./helper");
+const { flexsearch, pool:worker_pool, connection } = require("./handler");
+const index_map = {};
+let worker_index = 0;
 
 module.exports = {
 
@@ -26,7 +9,25 @@ module.exports = {
 
         try{
 
-            res.json(flexsearch.info());
+            if(worker_pool.length){
+
+                const uid = (Math.random() * 999999999) >> 0;
+
+                connection[uid] = res;
+
+                for(let i = 1; i < worker_pool.length; i++){
+
+                    worker_pool[i].send({
+
+                        job: "info",
+                        task: uid
+                    });
+                }
+            }
+            else{
+
+                res.json(flexsearch.info());
+            }
         }
         catch(err){
 
@@ -39,14 +40,14 @@ module.exports = {
         const id = req.params.id;
         const content = req.params.content;
 
-        if(id && content){
+        if(id || (id === 0)){
 
             try{
 
-                flexsearch.add(id, content, function(){
+                if(content){
 
-                    write_schedule(flexsearch);
-                });
+                    register_task("add", id, content, write_schedule);
+                }
 
                 res.sendStatus(200);
             }
@@ -57,40 +58,48 @@ module.exports = {
         }
         else{
 
-            let json = req.body;
+            res.sendStatus(422);
+        }
+    },
 
-            if(json){
+    add_bulk: function(req, res, next){
 
-                try{
+        let json = req.body;
 
-                    if(json.constructor !== Array){
+        if(json){
 
-                        json = [json];
-                    }
+            try{
 
-                    for(let i = 0, len = json.length; i < len; i++){
+                if(json.constructor !== Array){
 
-                        const query = json[i];
-                        const id = query.id;
-                        const content = query.content;
-
-                        flexsearch.add(id, content, i < len - 1 ? null : function(){
-
-                            write_schedule(flexsearch);
-                        });
-                    }
-
-                    res.sendStatus(200);
+                    json = [json];
                 }
-                catch(err){
 
-                    next(err);
+                for(let i = 0, len = json.length; i < len; i++){
+
+                    const query = json[i];
+                    const id = query.id;
+                    const content = query.content;
+
+                    if(id || (id === 0)){
+
+                        if(content){
+
+                            register_task("add", id, content, (worker_pool.length || (i === len - 1)) && write_schedule);
+                        }
+                    }
                 }
-            }
-            else{
 
-                next();
+                res.sendStatus(200);
             }
+            catch(err){
+
+                next(err);
+            }
+        }
+        else{
+
+            res.sendStatus(422);
         }
     },
 
@@ -99,14 +108,14 @@ module.exports = {
         const id = req.params.id;
         const content = req.params.content;
 
-        if(id && content){
+        if(id || (id === 0)){
 
             try{
 
-                flexsearch.update(id, content, function(){
+                if(content){
 
-                    write_schedule(flexsearch)
-                });
+                    register_task("update", id, content, write_schedule);
+                }
 
                 res.sendStatus(200);
             }
@@ -117,53 +126,39 @@ module.exports = {
         }
         else{
 
-            let json = req.body;
-
-            if(json){
-
-                try{
-
-                    if(json.constructor !== Array){
-
-                        json = [json];
-                    }
-
-                    for(let i = 0, len = json.length; i < len; i++){
-
-                        const query = json[i];
-                        const id = query.id;
-                        const content = query.content;
-
-                        flexsearch.update(id, content, i < len - 1 ? null : function(){
-
-                            write_schedule(flexsearch);
-                        });
-                    }
-
-                    res.sendStatus(200);
-                }
-                catch(err){
-
-                    next(err);
-                }
-            }
-            else{
-
-                next();
-            }
+            res.sendStatus(404);
         }
     },
 
-    search: async function(req, res, next){
+    update_bulk: function(req, res, next){
 
-        const query = req.params.query;
-        const json = req.body;
+        let json = req.body;
 
-        if(query || json){
+        if(json){
 
             try{
 
-                res.json(await flexsearch.search(query || json));
+                if(json.constructor !== Array){
+
+                    json = [json];
+                }
+
+                for(let i = 0, len = json.length; i < len; i++){
+
+                    const query = json[i];
+                    const id = query.id;
+                    const content = query.content;
+
+                    if(id || (id === 0)){
+
+                        if(content){
+
+                            register_task("update", id, content, (worker_pool.length || (i === len - 1)) && write_schedule);
+                        }
+                    }
+                }
+
+                res.sendStatus(200);
             }
             catch(err){
 
@@ -172,7 +167,47 @@ module.exports = {
         }
         else{
 
-            next();
+            res.sendStatus(422);
+        }
+    },
+
+    search: async function(req, res, next){
+
+        const query = req.params.query || req.body;
+
+        if(query){
+
+            try{
+
+                if(worker_pool.length){
+
+                    const uid = (Math.random() * 999999999) >> 0;
+
+                    connection[uid] = res;
+
+                    for(let i = 1; i < worker_pool.length; i++){
+
+                        worker_pool[i].send({
+
+                            job: "search",
+                            query: query,
+                            task: uid
+                        });
+                    }
+                }
+                else{
+
+                    res.json(await flexsearch.search(query));
+                }
+            }
+            catch(err){
+
+                next(err);
+            }
+        }
+        else{
+
+            res.json([]);
         }
     },
 
@@ -180,14 +215,13 @@ module.exports = {
 
         const id = req.params.id;
 
-        if(id){
+        if(id || (id === 0)){
 
             try{
 
-                flexsearch.remove(id, function(){
+                register_task("remove", id, write_schedule);
 
-                    write_schedule(flexsearch);
-                });
+                delete index_map["@" + id];
 
                 res.sendStatus(200);
             }
@@ -198,31 +232,70 @@ module.exports = {
         }
         else{
 
-            const json = req.body;
+            res.sendStatus(422);
+        }
+    },
 
-            if(json){
+    remove_bulk: function(req, res, next){
 
-                try{
+        const json = req.body;
 
-                    for(let i = 0, len = json.length; i < len; i++){
+        if(json){
 
-                        flexsearch.remove(json[i], i < len - 1 ? null : function(){
+            try{
 
-                            write_schedule(flexsearch);
-                        });
+                for(let i = 0, len = json.length; i < len; i++){
+
+                    const id = json[i];
+
+                    if(id || (id === 0)){
+
+                        register_task("remove", id, (worker_pool.length || (i === len - 1)) && write_schedule);
+
+                        delete index_map["@" + id];
                     }
-
-                    res.sendStatus(200);
                 }
-                catch(err){
 
-                    next(err);
-                }
+                res.sendStatus(200);
             }
-            else{
+            catch(err){
 
-                next();
+                next(err);
             }
+        }
+        else{
+
+            res.sendStatus(422);
         }
     }
 };
+
+function register_task(job, id, content, write){
+
+    if(worker_pool.length){
+
+        let current_index;
+
+        if(!(current_index = index_map["@" + id])){
+
+            if(++worker_index >= worker_pool.length){
+
+                worker_index = 1;
+            }
+
+            index_map["@" + id] = current_index = worker_index;
+        }
+
+        worker_pool[current_index].send({
+
+            job: job,
+            id: id,
+            content: content,
+            write: (job === "remove" ? content : write) && true
+        });
+    }
+    else{
+
+        flexsearch[job](id, content, write);
+    }
+}

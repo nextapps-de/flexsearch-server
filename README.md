@@ -221,17 +221,54 @@ __JSON__
 </table>
 
 <a name="config"></a>
-## Configs
+## Configuration
 
-There is one config json file for each environment:
+When you do not pass any custom options, the environment will be inherited from _NODE_ENV_ by default.
 
-_config/development.json_<br>
-_config/production.json_<br>
-_config/test.json_
+Override the current environment (_NODE_ENV_) by adding a field in the root of `package.json`:
 
-There is also a config json file for default settings:
+```json
+  "flexsearch": "production" // development, test
+```
 
-_config/default.json_
+Or add a config payload in the root of `package.json`:
+
+> The field "client" holds the flexsearch options
+
+```json
+  "flexsearch": {
+    "server": {
+      "debug": true,
+      "port": 80,
+      "port_ssl": 443,
+      "force_ssl": false,
+      "https": true,
+      "compress": true,
+      "autosave": 2000,
+      "worker": "auto"
+    },
+    "client": {
+      "async": false,
+      "cache": 0,
+      "worker": 4
+    }
+  }
+```
+
+Or provide a config json file for each environment respectively and pass file locations:
+
+> You can also provide a config json file to override the default settings globally.
+
+```json
+  "flexsearch": {
+    "development": "config/development.json",
+    "production": "config/production.json",
+    "test": "config/test",
+    "default": "config/default.json"
+}
+```
+
+Or just provide a ___flexsearch.json___ in the root of your project.
 
 <a name="persistence"></a>
 ## Persistence
@@ -254,6 +291,17 @@ __Production Environment:__
 
 _cert/production.crt_<br>
 _cert/production.pem_
+
+<a name="important"></a>
+## Important Notes
+
+You can increase workers without any drawbacks, but when you decrease worker count, the old index doesnt restore completely from the filesystem. This will be fixed in an upcoming version. As long please do not decrease worker count when using persistent index.
+
+## Cluster
+
+<img src="https://raw.githubusercontent.com/nextapps-de/flexsearch-server/master/doc/cluster.png" width="62%"><br>
+
+FlexSearch Server actually use Node.js Clusters and a Connection Pool to balance all incoming load through the workers.
 
 ---
 

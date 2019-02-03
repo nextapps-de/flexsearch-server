@@ -1,6 +1,7 @@
 const cluster = require("cluster");
 const os = require("os");
 const { config } = require("./helper");
+const { master, slave, pool } = require("./handler");
 
 if(cluster.isMaster){
 
@@ -11,24 +12,36 @@ if(cluster.isMaster){
         cluster.fork();
     }
 
-    cluster.on('exit', function(worker, code, signal){
+    refresh_pool();
 
-        if(code !== 0 && !worker.exitedAfterDisconnect){
+    cluster.on("exit", function(worker, code, signal){
+
+        if((code !== 0) && !worker.exitedAfterDisconnect){
 
             console.warn("Worker " + worker.id + " crashed. Starting a new worker...");
 
             cluster.fork();
+
+            refresh_pool();
         }
     });
+
+    cluster.on("message", master);
 
     process.on("SIGUSR2", function(){
 
         restartWorker();
     });
+
+    global.worker_pool = pool;
+
+    require("./server");
 }
 else{
 
-    require("./server");
+    require("./handler");
+
+    process.on("message", slave);
 }
 
 function restartWorker(workerIndex){
@@ -50,13 +63,27 @@ function restartWorker(workerIndex){
             return;
         }
 
-        console.log("Exited process: " + worker.process.pid);
+        console.info("Exited process: " + worker.process.pid);
 
         cluster.fork().on("listening", function(){
 
             restartWorker(workerIndex + 1);
         });
+
+        refresh_pool();
     });
 
     worker.disconnect();
+}
+
+function refresh_pool(){
+
+    const workers = Object.values(cluster.workers);
+
+    for(let i = 0; i < workers.length; i++){
+
+        const worker = workers[i];
+
+        pool[worker.id] = worker;
+    }
 }
