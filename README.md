@@ -4,7 +4,9 @@
     <br><br>
     <a target="_blank" href="https://www.npmjs.com/package/flexsearch-server"><img src="https://img.shields.io/npm/v/flexsearch-server.svg"></a>
     <img src="https://img.shields.io/badge/status-BETA-orange.svg">
-    <img src="https://badges.greenkeeper.io/nextapps-de/flexsearch.svg">
+    <a target="_blank" href="https://travis-ci.org/nextapps-de/flexsearch-server"><img src="https://travis-ci.org/nextapps-de/flexsearch-server.svg?branch=master"></a>
+    <a target="_blank" href="https://coveralls.io/github/nextapps-de/flexsearch-server?branch=master"><img src="https://coveralls.io/repos/github/nextapps-de/flexsearch-server/badge.svg?branch=master"></a>
+    <!--<img src="https://badges.greenkeeper.io/nextapps-de/flexsearch.svg">-->
     <a target="_blank" href="https://github.com/nextapps-de/flexsearch-server/issues"><img src="https://img.shields.io/github/issues/nextapps-de/flexsearch-server.svg"></a>
     <a target="_blank" href="https://github.com/nextapps-de/flexsearch-server/blob/master/LICENSE.md"><img src="https://img.shields.io/npm/l/flexsearch-server.svg"></a>
 </p>
@@ -48,7 +50,7 @@ __Note:__ A query time of 10 ms is already based on a large index.
 
 #### Sharding / Replication (Horizontal Scaling)
 
-Basically the current codebase has all requirements to provide also scaling in horizontal direction. If this project gains traction I will made an implementation and also provide some docker bindings for an out-of-the-box installation.
+Basically the current codebase has all requirements to provide also scaling in horizontal direction. If this project gains popularity I will made an implementation and also provide some docker bindings for an out-of-the-box installation.
 
 <a name="installation"></a>
 ## Installation

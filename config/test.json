@@ -1,8 +1,8 @@
 {
   "server": {
-    "debug": true,
-    "port": 80,
-    "port_ssl": 443,
+    "debug": false,
+    "port": 6780,
+    "port_ssl": 6781,
     "force_ssl": false,
     "https": false,
     "compress": true,

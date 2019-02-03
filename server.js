@@ -120,10 +120,15 @@ if(config.https || config.force_ssl){
 
 if(!config.force_ssl){
 
-    app.listen(config.port, function(err){
+    const server = app.listen(config.port, function(err){
 
         if(err) throw err;
 
         console.info("Server@" + process.pid + " listening on http://localhost" + (config.port !== 80 ? ":" + config.port : ""));
     });
+
+    if(process.env.NODE_ENV === "test"){
+
+        module.exports = server;
+    }
 }
