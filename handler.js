@@ -47,15 +47,25 @@ module.exports = {
 
         if((state[current_task].length + 1) === pool.length){
 
-            if(message.job === "search"){
+            try{
 
-                // TODO: sort results, return array of relevance [0...9] and apply in main thread
+                if(message.job === "search"){
 
-                connection[current_task].json([].concat.apply([], state[current_task]));
+                    // TODO: sort results, return array of relevance [0...9] and apply in main thread
+
+                    connection[current_task].json([].concat.apply([], state[current_task]));
+                }
+                else{
+
+                    connection[current_task].json(merge(state[current_task]));
+                }
             }
-            else{
+            catch(err){
 
-                connection[current_task].json(merge(state[current_task]));
+                if(config.debug){
+
+                    console.error(err);
+                }
             }
 
             delete connection[current_task];

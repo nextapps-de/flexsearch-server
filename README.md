@@ -10,9 +10,45 @@
 </p>
 
 <h1></h1>
-<h3>High-performance FlexSearch Server for Node.js (Cluster)</h3>
+<h3>High-performance FlexSearch Server for Node.js</h3>
 
 A full documentation of FlexSearch is available here: <a target="_blank" href="https://github.com/nextapps-de/flexsearch">https://github.com/nextapps-de/flexsearch</a>
+
+#### Cluster (Vertical Scaling)
+
+FlexSearch Server actually use Node.js Clusters and a Connection Pool to balance all incoming load through the workers.
+
+<img src="https://raw.githubusercontent.com/nextapps-de/flexsearch-server/master/doc/cluster.png" width="62%"><br>
+
+> The performance gain of workers depends on the complexity of the index and how much time a query takes.
+
+For most situations disabled workers performs a lot better, e.g.:
+
+<table>
+    <tr></tr>
+    <tr>
+        <td></td>
+        <td><b>Single Thread</b><br>(Request per seconds)</td>
+        <td><b>Cluster</b><br>(Request per seconds)</td>
+    </tr>
+    <tr>
+        <td>Query Time < 10 ms</td>
+        <td><b>6122</b></td>
+        <td>1215</td>
+    </tr>
+    <tr></tr>
+    <tr>
+        <td>Query Time > 1000 ms</td>
+        <td>114</td>
+        <td><b>1041</b></td>
+    </tr>
+</table>
+
+__Note:__ A query time of 10 ms is already based on a large index.
+
+#### Sharding / Replication (Horizontal Scaling)
+
+Basically the current codebase has all requirements to provide also scaling in horizontal direction. If this project gains traction I will made an implementation and also provide some docker bindings for an out-of-the-box installation.
 
 <a name="installation"></a>
 ## Installation
@@ -296,12 +332,6 @@ _cert/production.pem_
 ## Important Notes
 
 You can increase workers without any drawbacks, but when you decrease worker count, the old index doesnt restore completely from the filesystem. This will be fixed in an upcoming version. As long please do not decrease worker count when using persistent index.
-
-## Cluster
-
-<img src="https://raw.githubusercontent.com/nextapps-de/flexsearch-server/master/doc/cluster.png" width="62%"><br>
-
-FlexSearch Server actually use Node.js Clusters and a Connection Pool to balance all incoming load through the workers.
 
 ---
 
